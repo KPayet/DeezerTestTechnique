@@ -59,8 +59,7 @@ Je vois le processus de cette manière:
  
 - Mise à jour de la matrice, de manière quotidienne, hebdomadaire, ou autre, selon besoins, à partir des fichiers stream encore non traités.
 
-
-ICI METTRE SCHEMA !!!!
+![](./img/deezerTest.png)
 
 
 **b. Ecrire dans le langage de votre choix le code correspondant.**
