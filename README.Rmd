@@ -110,19 +110,21 @@ Pour ce qui est de la première (Jaccard similarity), elle est surtout utile qua
 
 Le coefficient de corrélation de Pearson est probablement la mesure de similarité la plus utilisée pour ce type de systèmes. Il estime la corrélation de 2 vecteurs d'utilisateur : 
 
-$$ w_{a,u} =\frac{\sum ^n _{i=1}(a_i - \bar{a})(u_i - \bar{u})}{\sqrt{\sum ^n _{i=1}(a_i - \bar{a})^2} \sqrt{\sum ^n _{i=1}(u_i - \bar{u})^2}} $$
+![](./img/formule1.PNG)
 
 Le premier intérêt de cette mesure est que l'expérience a montré qu'elle fonctionne mieux que le plupart des mesures.
 
 De plus, il est courant de normaliser les vecteurs avant le calcul de la similarité, mais cette étape est inutile pour le coefficient de Pearson, puisqu'elle est déjà intégrée dans le calcul du coefficient.
 
-Le principal problème de ce coefficient est qu'il surestime la similarité lorsque le nombre d'items en commun est peu élevé (dans la limite où on a qu'un seul item en commun, la similarité est de 1), ce qui n'est pas acceptable. La solution est d'appliquer une correction qu'on appelle "significance weighting", qui consiste à multiplier la mesure de similarité $w_{a,u}$ par :
+Le principal problème de ce coefficient est qu'il surestime la similarité lorsque le nombre d'items en commun est peu élevé (dans la limite où on a qu'un seul item en commun, la similarité est de 1), ce qui n'est pas acceptable. La solution est d'appliquer une correction qu'on appelle "significance weighting", qui consiste à multiplier la mesure de similarité Wa,u par :
 
-$$ \frac{1}{min\left\{ C, \left| R_a \cap R_u \right| \right\}} $$, où C est un cutoff (en général, C ~ 50 fonctionne bien), et $R_i$ l'ensemble d'items notés par l'utilisateur i (dans notre cas l'ensemble de morceaux écoutés).
+![](./img/formule2.PNG)
+
+où C est un cutoff (en général, C ~ 50 fonctionne bien), et Ri l'ensemble d'items notés par l'utilisateur i (dans notre cas l'ensemble de morceaux écoutés).
 
 La "cosine similarity" est une mesure de la similarité de deux vecteurs par une estimation du cosinus de leur angle. Si l'approche diffère des deux précédentes (statistique vs vectorielle), la formule ressemble beaucoup à celle du coefficient de Pearson : 
 
-$$ w_{a,u} = {A \cdot U \over \|A\| \|U\|} = \frac{ \sum\limits_{i=1}^{n}{A_i \times U_i} }{ \sqrt{\sum\limits_{i=1}^{n}{(A_i)^2}} \times \sqrt{\sum\limits_{i=1}^{n}{(U_i)^2}} } $$ 
+![](./img/formule3.PNG)
 
 Comme je mentionnais plus haut, il est utile, avant de calculer la similarité, de soustraire à chaque vecteur leur moyenne respective. Dans ce cas, la formule précédente devient identique à celle du coefficient de Pearson. 
 
@@ -142,7 +144,7 @@ J'arrête ici cette digression, car ce n'est pas le sujet de la question, mais j
 
 **Réponse :**
 
-Dans la limite où l'on calcule la similarité de chaque paires d'utilisateurs, la matrice contiendrait $\sim (16\times 10^6)^2 = 2.56\times 10^{14}$ éléments, ce qui est énorme.
+Dans la limite où l'on calcule la similarité de chaque paires d'utilisateurs, la matrice contiendrait ~ 2.56e14 éléments, ce qui est énorme.
 
 Cette matrice est symmétrique, de telle sorte que l'on ne doit stocker que la moitié des éléments. Cela représente encore malheureusement de l'ordre de 1.3e14 éléments. 
 
