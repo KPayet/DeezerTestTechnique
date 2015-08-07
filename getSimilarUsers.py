@@ -34,7 +34,7 @@ def main(argv):
     # init Spark, and retrieve similarityMatrix.
     # I suppose this one is stored on hdfs, and compressed.
     sc = SparkContext(appName = "top20Similarusers")
-    simMatrix = sc.textFile("./similarityMatrix")    
+    simMatrix = sc.textFile("hdfs:///deezer/similarityMatrix/part*.gz")    
 
     top20 = getSimilarUsers(userId, simMatrix)
     
