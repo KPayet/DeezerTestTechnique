@@ -1,14 +1,18 @@
+''' updates users profile sparse matrix stored with not yet processed stream_xxxxxxxx files '''
+
 import sys
 import getopt
 import os
 from pyspark import SparkContext
 
+'''same as in the previous script. Defined to add overwrite option'''
 def saveAsTextFile(rdd, path, overwrite=True):
     if overwrite:
         os.system("rm -r " + path)
-    print path    
+
     rdd.saveAsTextFile(path, compressionCodecClass="org.apache.hadoop.io.compress.GzipCodec")
 
+# Retrieves and deals with line arguments
 def getArguments(argv):
     
     matrixFiles = ""
@@ -35,16 +39,22 @@ def getArguments(argv):
          inputFiles = arg
       elif option == "-o":
          outputFile = arg
-    print matrixFiles, inputFiles, outputFile      
+
     return matrixFiles, inputFiles, outputFile
 
 
 def main(argv):
-
+    
+    ''' matrixDirectory: the hdfs directory where we find users profile matrix. It is assumed to be compressed 
+                        and split in several files.
+        streamFiles: the files used to update the matrix. In userId|country|artistId|trackId format
+        outputFile: optional output directory for the updated matrix. By default, we simply overwrite the current one'''
     matrixDirectory, streamFiles, outputFile = getArguments(argv)
 
     sc = SparkContext(appName="usersProfile")
-
+    
+    # open both matrix and non processed stream_xxxxxxxx files
+    # Turn into (key, value) pair, where key = (user, track), to prepare the join
     matrix = (sc.textFile(matrixDirectory + "*.gz")
                 .map(lambda line: map(int, line.split(" ")))
                 .map(lambda t: ((t[0], t[1]), t[2])))
@@ -52,13 +62,12 @@ def main(argv):
     streamData = (sc.textFile(streamFiles)
                     .map(lambda line:  line.split("|"))
 		    .map(lambda t: ((int(t[0]), int(t[3])), 1)))
-   
-      
- 
-    outData = (matrix.join(streamData)
-	             .map(lambda t: (t[0], sum(t[1])) )
-                     .sortByKey()
-		     .map(lambda t: " ".join(map(str, (t[0][0], t[0][1], t[1])))))
+  
+  
+    outData = (matrix.join(streamData) # here the entries look like ((user, track), [count, 1, 1 ...])
+	             .map(lambda t: (t[0], sum(t[1])) ) # compute new count => ((user, track), new_count)
+                     .sortByKey()                  
+		     .map(lambda t: " ".join(map(str, (t[0][0], t[0][1], t[1]))))) # prepare output file
 
     saveAsTextFile(outData, path = outputFile, overwrite = True)
 
