@@ -64,7 +64,7 @@ Je vois le processus de cette manière:
 
 **b. Ecrire dans le langage de votre choix le code correspondant.**
 
-**Réponse : **
+**Réponse :**
 
 J'ai utilisé l'interface Python de Spark, pySpark, pour écrire deux scripts qui effectuent les opérations présentées ci-dessus.
 
@@ -91,15 +91,74 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 **a. Définir une mesure de similarité. Justifiez.**
 
-**Réponse : **
+**Réponse :**
 
+Dans cet exercice, on s'intéresse au fonctionnement d'un système de recommandation type "user-user collaborative filtering".
+
+La première partie consiste à représenter chaque utilisateur par un vecteur correspondant à une ligne de la "utility matrix".
+
+C'est à partir de ces vecteurs que l'on estime la similarité de deux utilisateurs. Les mesures de similarité que je connais pour ce type d'application sont :
+
+- jaccard similarity
+
+- coefficient de corrélation de Pearson
+
+- cosine similarity (similarité cosinus ?)
+
+Pour ce qui est de la première (Jaccard similarity), elle est surtout utile quand la matrice consiste de 1 et 0 uniquement (pour "vu"-"non vu", ou "acheté"-"non acheté" ...). Dans notre cas, on utilise l'information du nombre d'écoutes. Cette mesure ne serait donc pas très utile.
+
+Le coefficient de corrélation de Pearson est probablement la mesure de similarité la plus utilisée pour ce type de systèmes. Il estime la corrélation de 2 vecteurs d'utilisateur : 
+
+$$ w_{a,u} =\frac{\sum ^n _{i=1}(a_i - \bar{a})(u_i - \bar{u})}{\sqrt{\sum ^n _{i=1}(a_i - \bar{a})^2} \sqrt{\sum ^n _{i=1}(u_i - \bar{u})^2}} $$
+
+Le premier intérêt de cette mesure est que l'expérience a montré qu'elle fonctionne mieux que le plupart des mesures.
+
+De plus, il est courant de normaliser les vecteurs avant le calcul de la similarité, mais cette étape est inutile pour le coefficient de Pearson, puisqu'elle est déjà intégrée dans le calcul du coefficient.
+
+Le principal problème de ce coefficient est qu'il surestime la similarité lorsque le nombre d'items en commun est peu élevé (dans la limite où on a qu'un seul item en commun, la similarité est de 1), ce qui n'est pas acceptable. La solution est d'appliquer une correction qu'on appelle "significance weighting", qui consiste à multiplier la mesure de similarité $w_{a,u}$ par :
+
+$$ \frac{1}{min\left\{ C, \left| R_a \cap R_u \right| \right\}} $$, où C est un cutoff (en général, C ~ 50 fonctionne bien), et $R_i$ l'ensemble d'items notés par l'utilisateur i (dans notre cas l'ensemble de morceaux écoutés).
+
+La "cosine similarity" est une mesure de la similarité de deux vecteurs par une estimation du cosinus de leur angle. Si l'approche diffère des deux précédentes (statistique vs vectorielle), la formule ressemble beaucoup à celle du coefficient de Pearson : 
+
+$$ w_{a,u} = {A \cdot U \over \|A\| \|U\|} = \frac{ \sum\limits_{i=1}^{n}{A_i \times U_i} }{ \sqrt{\sum\limits_{i=1}^{n}{(A_i)^2}} \times \sqrt{\sum\limits_{i=1}^{n}{(U_i)^2}} } $$ 
+
+Comme je mentionnais plus haut, il est utile, avant de calculer la similarité, de soustraire à chaque vecteur leur moyenne respective. Dans ce cas, la formule précédente devient identique à celle du coefficient de Pearson. 
+
+La différence vient de la manière dont les items absent sont traités dans chacun des cas. Dans le cas de Pearson, on se restreint aux items en commun. Dans le cas de la similarité cosinus, on considère simplement que l'absence de rating équivaut à 0. Grâce à cette différence, il n'est pas utile d'appliquer de correction à la similarité cosinus, comme c'était le cas pour le coefficient de Pearson.
+
+La similarité cosinus donne des résultats aussi bons que la corrélation de Pearson, avec correction "significance weighting".
+
+Pour notre cas d'étude, mon choix se porterait plutôt sur la similarité cosinus, bien que le coefficient de Pearson donnerait surement également de bons résultats.
+
+Dans notre cas, où les vecteurs consistent du nombre d'écoutes de chaque track, il pourrait être intéressant d'appliquer d'autres corrections avant le calcul de la similarité. Celles-ci peuvent s'inspirer des TF-IDF weighting utilisé en NLP.
+
+Techniquement, ce type de pondération permettrait de limiter, pour chaque utilisateur, l'influence de morceaux dont le nombre d'écoutes serait très supérieur aux autres, ainsi que celle des morceaux très populaires, qui apportent peu d'information quant à la similarité de 2 utilisateurs.
+
+J'arrête ici cette digression, car ce n'est pas le sujet de la question, mais je pense que ce serait une piste à explorer.
 
 **b. Quelle est la taille maximale de la matrice ? Quelles sont ses propriétés ? Comment choisiriez-vous de la stocker ?**
 
-**Réponse : **
+**Réponse :**
 
+Dans la limite où l'on calcule la similarité de chaque paires d'utilisateurs, la matrice contiendrait $\sim (16\times 10^6)^2 = 2.56\times 10^{14}$ éléments, ce qui est énorme.
+
+Cette matrice est symmétrique, de telle sorte que l'on ne doit stocker que la moitié des éléments. Cela représente encore malheureusement de l'ordre de 1.3e14 éléments. 
+
+Il suffit toutefois de réaliser que dans ce genre de problème, il ne sert à rien de connaitre la similarité de toutes les paires d'utilisateurs. Il faut simplement être en mesure de sélectionner les utilisateurs les plus similaires.
+
+Mon avis est donc que l'on peut calculer la matrice M, mais ne stocker qu'une partie de celle-ci, par exemple les 100 mesures les plus importantes pour chaque utilisateur.
+
+En général, on pourrait stocker une matrice symmétrique en ne gardant que les tuples ((i,j), value), tels que i<j (où i et j représentent l'id d'un utilisateur, et value leur similarité). Toutefois, comme j'ai choisi de ne garder que les 100 mesures les plus importantes pour chaque utilisateur, je pense que l'on peut rencontrer des cas pour lesquels, étant donné une paire (user1, user2), user1 fait partie des 100 utilisateurs les plus proches de user2, mais user2 ne fait pas partie des 100 utilisateurs les plus proches de user1.
+
+Pour cela, je pense que la manière la plus simple de la stocker sur disque serait de garder le format utilisé précédemment ("user1 user2 value"), avec une entrée de ce type par ligne, pour user1 = 1:maxUserId. Le fichier correspondant devrait faire dans les 20-30 Go, sans compression, ce qui n'est pas énorme. 
+
+Ensuite, tout dépend de l'utilisation que l'on souhaite en faire. Je pense qu'un bon choix serait ici de stocker le fichier sur hdfs, puisque cela permet à la fois d'envisager de s'en servir en batch, avec Pig ou Spark, ou bien également d'effectuer des requêtes ponctuels, au travers par exemple de HBase.
 
 **c. Ecrire dans le langage de votre choix le code correspondant à une fonction getSimilarUsers prenant en paramètre un <user_id> et retournant ses 20 utilisateurs les plus similaires.**
 
-**Réponse : **
+**Réponse :**
 
+Au vu de la taille de la matrice, elle ne peut pas être traitée en mémoire sur un ordinateur classique. J'ai donc choisi de continuer de me servir de Spark.
+
+Ce choix est plus orienté batch, par exemple pour obtenir les 20 utilisateurs les plus similaires, pour chaque utilisateur. Pour des requêtes ponctuelles, il faudrait peut être voir du côté de HBase ou autre nOSQL database. Malheureusement, je n'ai pas encore eu l'opportunité d'apprendre à me servir de ces dernières.
