@@ -33,13 +33,13 @@ def getSimilarUsers(id, rdd):
     
 if __name__ == "__main__":
     
-    id = getArguments(argv)
+    id = getArguments(sys.argv[1:])
     
     # init Spark, and retrieve similarityMatrix.
     # I suppose this one is stored on hdfs, and compressed.
-    sc = SparkContext("top20Similarusers")
-    simMatrix = sc.textFile("hdfs:///deezer/similarityMatrix/part*.gz")
+    sc = SparkContext(appName = "top20Similarusers")
+    simMatrix = sc.textFile("./similarityMatrix")
     
     top20 = getSimilarUsers(id, simMatrix)
     
-    print "The 20 users most similar to user ", id, " are: ", top20"
+    print "The 20 users most similar to user ", id, " are: ", top20
