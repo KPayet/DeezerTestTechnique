@@ -16,15 +16,19 @@ def getArguments(argv):
          print 'streamToProfile.py -u <user_id>'
          sys.exit()
       elif option == "-u":
-         userId = arg
+         userId = int(arg)
 
     return userId
 
+def test(user1, userId):
+   return user1==userId
+
 # la 
-def getSimilarUsers(id, rdd):
-    
-    top20 = (rdd.map(lambda line: map(float, line.split(" ")))  # parse from line to tuple
-                .filter(lambda t: t[0] == id)       #t[0] = user1, t[1] = user2, t[2] = sim(user1, user2)
+def getSimilarUsers(userId, rdd):
+   
+    top20 = (rdd.map(lambda line: line.split(" "))  # parse from line to tuple
+                .map(lambda t: (int(t[0]), int(t[1]), float(t[2])))
+		.filter(lambda t: t[0] == userId)       #t[0] = user1, t[1] = user2, t[2] = sim(user1, user2)
                 .sortBy(lambda t: -1*t[2])          # we sort by descending order of similarity (t[2])
                 .map(lambda t: t[1])
                 .take(20)) # return as a list
@@ -33,13 +37,13 @@ def getSimilarUsers(id, rdd):
     
 if __name__ == "__main__":
     
-    id = getArguments(sys.argv[1:])
+    userId = getArguments(sys.argv[1:])
     
     # init Spark, and retrieve similarityMatrix.
     # I suppose this one is stored on hdfs, and compressed.
     sc = SparkContext(appName = "top20Similarusers")
-    simMatrix = sc.textFile("./similarityMatrix")
+    simMatrix = sc.textFile("./similarityMatrix")    
+
+    top20 = getSimilarUsers(userId, simMatrix)
     
-    top20 = getSimilarUsers(id, simMatrix)
-    
-    print "The 20 users most similar to user ", id, " are: ", top20
+    print "\n The 20 users most similar to user ", userId, " are: ", top20, "\n"
