@@ -68,6 +68,7 @@ J'ai utilisé l'interface Python de Spark, pySpark, pour écrire deux scripts qu
 ```
 spark-submit streamToProfile.py -i hdfs:///deezer/fakeData -o hdfs:///deezer/usersProfile -n numPartitions
 ```
+
 ![](./img/streamToProfile.PNG)
 
 - updateUsersProfiles.py effectue la mise à jour de la matrice créée précédemment. Le script prend en input le directory de la matrice sur hdfs (où sont stockés les part_r0000*), les fichiers stream au format raw, et un éventuel fichier d'output. Par défaut, le script remplace simplement la précédente matrice par sa version mise à jour.
@@ -138,9 +139,28 @@ J'arrête ici cette digression, car ce n'est pas le sujet de la question, mais j
 
 Dans la limite où l'on calcule la similarité de chaque paires d'utilisateurs, la matrice contiendrait $\sim (16\times 10^6)^2 = 2.56\times 10^{14}$ éléments, ce qui est énorme.
 
+Cette matrice est symmétrique, de telle sorte que l'on ne doit stocker que la moitié des éléments. Cela représente encore malheureusement de l'ordre de 1.3e14 éléments. 
 
+Il suffit toutefois de réaliser que dans ce genre de problème, il ne sert à rien de connaitre la similarité de toutes les paires d'utilisateurs. Il faut simplement être en mesure de sélectionner les utilisateurs les plus similaires.
+
+Mon avis est donc que l'on peut calculer la matrice M, mais ne stocker qu'une partie de celle-ci, par exemple les 100 mesures les plus importantes pour chaque utilisateur.
+
+En général, on pourrait stocker une matrice symmétrique en ne gardant que les tuples ((i,j), value), tels que i<j (où i et j représentent l'id d'un utilisateur, et value leur similarité). Toutefois, comme j'ai choisi de ne garder que les 100 mesures les plus importantes pour chaque utilisateur, je pense que l'on peut rencontrer des cas pour lesquels, étant donné une paire (user1, user2), user1 fait partie des 100 utilisateurs les plus proches de user2, mais user2 ne fait pas partie des 100 utilisateurs les plus proches de user1.
+
+Pour cela, je pense que la manière la plus simple de la stocker sur disque serait de garder le format utilisé précédemment ("user1 user2 value"), avec une entrée de ce type par ligne, pour user1 = 1:maxUserId. Le fichier correspondant devrait faire dans les 20-30 Go, sans compression, ce qui n'est pas énorme. 
+
+Ensuite, tout dépend de l'utilisation que l'on souhaite en faire. Je pense qu'un bon choix serait ici de stocker le fichier sur hdfs, puisque cela permet à la fois d'envisager de s'en servir en batch, avec Pig ou Spark, ou bien également d'effectuer des requêtes ponctuels, au travers par exemple de HBase.
 
 **c. Ecrire dans le langage de votre choix le code correspondant à une fonction getSimilarUsers prenant en paramètre un <user_id> et retournant ses 20 utilisateurs les plus similaires.**
 
 **Réponse :**
 
+Au vu de la taille de la matrice, elle ne peut pas être traitée en mémoire sur un ordinateur classique. J'ai donc choisi de continuer de me servir de Spark.
+
+Ce choix est plus orienté batch, par exemple pour obtenir les 20 utilisateurs les plus similaires, pour chaque utilisateur. Pour des requêtes ponctuelles, il faudrait peut être voir du côté de HBase ou autre nOSQL database. Malheureusement, je n'ai pas encore eu l'opportunité d'apprendre à me servir de ces dernières.
+
+```
+spark-submit getSimilarUsers.py -u 17
+```
+
+![](./img/getSimilarUsers.PNG)

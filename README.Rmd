@@ -73,6 +73,7 @@ J'ai utilisé l'interface Python de Spark, pySpark, pour écrire deux scripts qui 
 ```
 spark-submit streamToProfile.py -i hdfs:///deezer/fakeData -o hdfs:///deezer/usersProfile -n numPartitions
 ```
+
 ![](./img/streamToProfile.PNG)
 
 - updateUsersProfiles.py effectue la mise à jour de la matrice créée précédemment. Le script prend en input le directory de la matrice sur hdfs (où sont stockés les part_r0000*), les fichiers stream au format raw, et un éventuel fichier d'output. Par défaut, le script remplace simplement la précédente matrice par sa version mise à jour.
@@ -162,3 +163,9 @@ Ensuite, tout dépend de l'utilisation que l'on souhaite en faire. Je pense qu'un
 Au vu de la taille de la matrice, elle ne peut pas être traitée en mémoire sur un ordinateur classique. J'ai donc choisi de continuer de me servir de Spark.
 
 Ce choix est plus orienté batch, par exemple pour obtenir les 20 utilisateurs les plus similaires, pour chaque utilisateur. Pour des requêtes ponctuelles, il faudrait peut être voir du côté de HBase ou autre nOSQL database. Malheureusement, je n'ai pas encore eu l'opportunité d'apprendre à me servir de ces dernières.
+
+```
+spark-submit getSimilarUsers.py -u 17
+```
+
+![](./img/getSimilarUsers.PNG)
