@@ -23,7 +23,7 @@ def getArguments(argv):
 # la 
 def getSimilarUsers(id, rdd):
     
-    top20 = (rdd.map(lambda line: line.split(" "))  # parse from line to tuple
+    top20 = (rdd.map(lambda line: map(float, line.split(" ")))  # parse from line to tuple
                 .filter(lambda t: t[0] == id)       #t[0] = user1, t[1] = user2, t[2] = sim(user1, user2)
                 .sortBy(lambda t: -1*t[2])          # we sort by descending order of similarity (t[2])
                 .map(lambda t: t[1])
