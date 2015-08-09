@@ -79,7 +79,7 @@ cat stream_20141201 | head -n 1
 
 <p>Mais intéressons nous d'abord à notre problème. Nous souhaitons transformer un fichier contenant des lignes au format Userid|Country|ArtistId|TrackId en matrice au format UserId|TrackId|Count.</p>
 
-<p>Ce type de transformation peut être effectué de manière aisée par tout langage qui permet d'effectuer des opérations d'algèbre relationnelle (projection, join, group by). C'est le cas de R (avec le package dplyr par exemple), de Pig, Spark , etc.</p>
+<p>Ce type de transformation peut être effectué de manière aisée par tout langage qui permet d'effectuer des opérations d'algèbre relationnelle (projection, join, group by ...). C'est le cas de R (avec le package dplyr par exemple), de Pig, Spark , etc.</p>
 
 <p>Pour choisir l'outil à utiliser, j'ai créé un fichier de fausses données, de 50M d'entrées, au même format que les fichiers stream_xxxxxxxx. Avec R, j'ai ensuite converti ce fichier au format COO, .i.e sous forme de matrice sparse. Le fichier ainsi créé fait ~ 900 Mo, non compressé. Toutefois, il ne contient que les résultats pour une journée. Et, dans cet exercice, on ne souhaite pas simplement transformer chaque input dans le format décrit plus tôt, mais plutôt accumuler ces informations dans un fichier qui contiendrait l'historique de plusieurs années d'écoutes. Dans le fichier test que j'ai utilisé, chaque utilisateur apparait en moyenne 3.27 fois, ce qui est très peu. Personnellement, j'ai plus de 15000 morceaux dans ma bibliothèque. Je doute toutefois que l'utilisateur moyen ait autant de morceaux dans son historique d'écoute. Il est dur d'estimer ce nombre, mais je considèrerai qu'<strong>en moyenne</strong> un utilisateur de Deezer a écouté, depuis 2009, 200-300 morceaux. Cela signifie que dans le fichier final, chaque utilisateur apparait dans ~250 lignes (userId, TrackId, Count). On se retrouve donc avec une matrice de l'ordre de 100-200 Go. </p>
 
@@ -165,15 +165,15 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 <p>La différence vient de la manière dont les items absents sont traités dans chacun des cas. Dans le cas de Pearson, on se restreint aux items en commun. Dans le cas de la similarité cosinus, on considère simplement que l'absence de rating équivaut à 0. Grâce à cette différence, il n'est pas utile d'appliquer de correction à la similarité cosinus, comme c'était le cas pour le coefficient de Pearson.</p>
 
-<p>La similarité cosinus donne des résultats aussi bons que la corrélation de Pearson, avec correction "significance weighting".</p>
+<p>La similarité cosinus, avec soustraction de la moyenne, donne des résultats aussi bons que la corrélation de Pearson, avec correction "significance weighting".</p>
 
 <p>Pour notre cas d'étude, mon choix se porterait plutôt sur la similarité cosinus, bien que le coefficient de Pearson donnerait surement également de bons résultats.</p>
+
+<p> Note : </p>
 
 <p>Dans notre cas, où les vecteurs consistent du nombre d'écoutes de chaque track, il pourrait être intéressant d'appliquer d'autres corrections avant le calcul de la similarité. Celles-ci peuvent s'inspirer des TF-IDF weighting utilisé en NLP.</p>
 
 <p>Techniquement, ce type de pondération permettrait de limiter, pour chaque utilisateur, l'influence de morceaux dont le nombre d'écoutes serait très supérieur aux autres, ainsi que celle des morceaux très populaires, qui apportent peu d'informations quant à la similarité de 2 utilisateurs.</p>
-
-<p>J'arrête ici cette digression, car ce n'est pas le sujet de la question, mais je pense que ce serait une piste à explorer.</p>
 
 <p><strong>b. Quelle est la taille maximale de la matrice ? Quelles sont ses propriétés ? Comment choisiriez-vous de la stocker ?</strong></p>
 
@@ -199,7 +199,7 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 <p>Au vu de la taille de la matrice, elle ne peut pas être traitée en mémoire sur un ordinateur classique. J'ai donc choisi de continuer de me servir de Spark.</p>
 
-<p>Ce choix est plus orienté batch, par exemple pour obtenir les 20 utilisateurs les plus similaires, pour chaque utilisateur. Pour des requêtes ponctuelles, il faudrait peut être voir du côté de HBase ou autre nOSQL database. Malheureusement, je n'ai pas encore eu l'opportunité d'apprendre à me servir de ces dernières.</p>
+<p>Ce choix est plus orienté batch, par exemple pour obtenir les 20 utilisateurs les plus similaires, pour chaque utilisateur. Pour des requêtes ponctuelles, il faudrait peut être voir du côté de HBase ou autre noSQL database. Malheureusement, je n'ai pas encore eu l'opportunité d'apprendre à me servir de ces dernières.</p>
 
 <pre><code>spark-submit getSimilarUsers.py -u 17
 </code></pre>
