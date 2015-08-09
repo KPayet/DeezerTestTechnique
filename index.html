@@ -71,7 +71,7 @@ cat stream_20141201 | head -n 1
 
 <p>Chaque utilisateur est ainsi représenté par un vecteur représentant ces préférences en matière de musique. On peut ensuite estimer la similarité entre deux utilisateurs en utilisant leurs vecteurs respectifs.</p>
 
-<p>A vu du nombre total de morceaux (~35M), on peut se convaincre que la matrice ainsi créée aura une grande majorité d'éléments nuls (sparse matrix). Cela permet d'envisager d'autres formats de stockage pour la matrice, que le format naif sous forme de tableau bidimensionnel avec #users*#tracks éléments (ici &gt; 5e14 !).</p>
+<p>A vu du nombre total de morceaux (~35M), on peut se convaincre que la matrice ainsi créée aura une grande majorité d'éléments nuls (sparse matrix). Cela permet d'envisager d'autres formats de stockage pour la matrice, que le format naif sous forme de tableau bidimensionnel avec Nusers x Ntracks éléments (ici &gt; 5e14 !).</p>
 
 <p>Il existe plusieurs possibilités de format pour les matrices sparse. J'ai choisi le format COO (coordinate list), pour sa simplicité. Il consiste simplement à stocker, uniquement pour les éléments non nuls, les tuples (ligne, colonne, valeur).</p>
 
