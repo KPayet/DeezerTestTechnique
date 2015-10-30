@@ -1,45 +1,34 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta charset="UTF-8">
     <title>Test technique - Data scientist by KPayet</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1 class="header">Test technique - Data scientist</h1>
-        <p class="header"></p>
+    <section class="page-header">
+      <h1 class="project-name">Test technique - Data scientist</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/KPayet/DeezerTestTechnique" class="btn">View on GitHub</a>
+      <a href="https://github.com/KPayet/DeezerTestTechnique/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/KPayet/DeezerTestTechnique/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-        <ul>
-          <li class="download"><a class="buttons" href="https://github.com/KPayet/DeezerTestTechnique/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/KPayet/DeezerTestTechnique/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/KPayet/DeezerTestTechnique">View On GitHub</a></li>
-		  <li><a class="buttons" href="http://kpayet.github.io/DeezerTestTechnique/index_en.html">English Version</a></li>
-        </ul>
+    <section class="main-content">
+      <h1>
+<a id="exercice-technique" class="anchor" href="#exercice-technique" aria-hidden="true"><span class="octicon octicon-link"></span></a>Exercice technique</h1>
 
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/KPayet">KPayet</a></p>
+<p>Kevin Payet - 6 août 2015<br></p>
 
+<p>For an English version, click on the corresponding link in the menu on the left.<br><br></p>
 
-      </header>
-      <section>
-        <h1>
-<a id="deezer---exercice-technique" class="anchor" href="#deezer---exercice-technique" aria-hidden="true"><span class="octicon octicon-link"></span></a>Exercice technique</h1>
+<p>Ce dossier contient les différents scripts réponses à un exercice technique pour le poste de Data Scientist.</p>
 
-<p>Kevin Payet - 6 août 2015  </p><br/>
-<p>For an English version, click on the corresponding link in the menu on the left.</p>
-
-<br/><br/>
-<p>Ce dossier contient les différents scripts réponses à un exercice technique pour le poste de Data Scientist.<br/> 
-On se place dans le contexte d'un site de musique en ligne.</p>
+<p>On se place dans le contexte d'un site de musique en ligne.</p>
 
 <h1>
 <a id="growth-data-analyst---exercice-technique" class="anchor" href="#growth-data-analyst---exercice-technique" aria-hidden="true"><span class="octicon octicon-link"></span></a>Growth Data Analyst - Exercice Technique</h1>
@@ -61,12 +50,13 @@ cat stream_20141201 | head -n 1
 5464754|FR|542|79965994</p>
 
 <ol>
-<li><strong>Nous souhaitons représenter chaque utilisateur par son profil d'écoutes. Ce profil doit être maintenu à jour régulièrement et de volume raisonnable afin d'être utilisé par le site en production.</strong></li>
+<li> <strong>Nous souhaitons représenter chaque utilisateur par son profil d'écoutes. Ce profil doit être maintenu à jour régulièrement et de volume raisonnable afin d'être utilisé par le site en production.</strong>
+</li>
 </ol>
 
 <p><strong>a. Faire un schéma représentant la chaîne de traitement que vous proposez.</strong></p>
 
-<p><strong>Réponse :</strong> </p>
+<p><strong>Réponse :</strong></p>
 
 <p>Les fichiers stream_xxxxxxxx contiennent le récapitulatif des écoutes de la journée, où chaque morceau écouté correspond à une ligne dans le fichier.</p>
 
@@ -84,7 +74,7 @@ cat stream_20141201 | head -n 1
 
 <p>Ce type de transformation peut être effectué de manière aisée par tout langage qui permet d'effectuer des opérations d'algèbre relationnelle (projection, join, group by ...). C'est le cas de R (avec le package dplyr par exemple), de Pig, Spark , etc.</p>
 
-<p>Pour choisir l'outil à utiliser, j'ai créé un fichier de fausses données, de 50M d'entrées, au même format que les fichiers stream_xxxxxxxx. Avec R, j'ai ensuite converti ce fichier au format COO, .i.e sous forme de matrice sparse. Le fichier ainsi créé fait ~ 900 Mo, non compressé. Toutefois, il ne contient que les résultats pour une journée. Et, dans cet exercice, on ne souhaite pas simplement transformer chaque input dans le format décrit plus tôt, mais plutôt accumuler ces informations dans un fichier qui contiendrait l'historique de plusieurs années d'écoutes. Dans le fichier test que j'ai utilisé, chaque utilisateur apparait en moyenne 3.27 fois, ce qui est très peu. Personnellement, j'ai plus de 15000 morceaux dans ma bibliothèque. Je doute toutefois que l'utilisateur moyen ait autant de morceaux dans son historique d'écoute. Il est dur d'estimer ce nombre, mais je considèrerai qu'<strong>en moyenne</strong> un utilisateur de Deezer a écouté, depuis 2009, 200-300 morceaux. Cela signifie que dans le fichier final, chaque utilisateur apparait dans ~250 lignes (userId, TrackId, Count). On se retrouve donc avec une matrice de l'ordre de 100-200 Go. </p>
+<p>Pour choisir l'outil à utiliser, j'ai créé un fichier de fausses données, de 50M d'entrées, au même format que les fichiers stream_xxxxxxxx. Avec R, j'ai ensuite converti ce fichier au format COO, .i.e sous forme de matrice sparse. Le fichier ainsi créé fait ~ 900 Mo, non compressé. Toutefois, il ne contient que les résultats pour une journée. Et, dans cet exercice, on ne souhaite pas simplement transformer chaque input dans le format décrit plus tôt, mais plutôt accumuler ces informations dans un fichier qui contiendrait l'historique de plusieurs années d'écoutes. Dans le fichier test que j'ai utilisé, chaque utilisateur apparait en moyenne 3.27 fois, ce qui est très peu. Personnellement, j'ai plus de 15000 morceaux dans ma bibliothèque. Je doute toutefois que l'utilisateur moyen ait autant de morceaux dans son historique d'écoute. Il est dur d'estimer ce nombre, mais je considèrerai qu'<strong>en moyenne</strong> un utilisateur de Deezer a écouté, depuis 2009, 200-300 morceaux. Cela signifie que dans le fichier final, chaque utilisateur apparait dans ~250 lignes (userId, TrackId, Count). On se retrouve donc avec une matrice de l'ordre de 100-200 Go.</p>
 
 <p>Au vu de la taille de cette matrice, j'ai décidé d'utiliser Spark pour effectuer les opérations requises dans cette partie.</p>
 
@@ -106,7 +96,7 @@ cat stream_20141201 | head -n 1
 <p>J'ai utilisé l'interface Python de Spark, pySpark, pour écrire deux scripts qui effectuent les opérations présentées ci-dessus.</p>
 
 <ul>
-<li>streamToProfile.py permet de transformer un ou plusieurs fichiers d'input (stream_xxxxxxxx) en matrice Users x Tracks, qui est ensuite sauvegardée sur HDFS.</li>
+<li>  streamToProfile.py permet de transformer un ou plusieurs fichiers d'input (stream_xxxxxxxx) en matrice Users x Tracks, qui est ensuite sauvegardée sur HDFS.</li>
 </ul>
 
 <pre><code>spark-submit streamToProfile.py -i hdfs:///deezer/fakeData -o hdfs:///deezer/usersProfile -n numPartitions
@@ -115,7 +105,7 @@ cat stream_20141201 | head -n 1
 <p><img src="./img/streamToProfile.PNG" alt=""></p>
 
 <ul>
-<li>updateUsersProfiles.py effectue la mise à jour de la matrice créée précédemment. Le script prend en input le directory de la matrice sur hdfs (où sont stockés les part_r0000*), les fichiers stream au format raw, et un éventuel fichier d'output. Par défaut, le script remplace simplement la précédente matrice par sa version mise à jour.</li>
+<li>  updateUsersProfiles.py effectue la mise à jour de la matrice créée précédemment. Le script prend en input le directory de la matrice sur hdfs (où sont stockés les part_r0000*), les fichiers stream au format raw, et un éventuel fichier d'output. Par défaut, le script remplace simplement la précédente matrice par sa version mise à jour.</li>
 </ul>
 
 <pre><code>spark-submit updateUsersProfile.py -m hdfs:///deezer/usersProfile -s hdfs:///deezer/stream_*
@@ -125,8 +115,7 @@ cat stream_20141201 | head -n 1
 
 <p>Les deux scripts appliquent une compression à la matrice produite. Cela permet de réduire de manière notable l'espace occupé par cette dernière.</p>
 
-<p><strong>2. Nous souhaitons proposer aux utilisateurs de pouvoir « follow » sur le site des utilisateurs ayant des goûts musicaux similaires.
-Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure de similarité entre l'utilisateur i et l'utilisateur j.</strong></p>
+<p><strong>2. Nous souhaitons proposer aux utilisateurs de pouvoir « follow » sur le site des utilisateurs ayant des goûts musicaux similaires. Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure de similarité entre l'utilisateur i et l'utilisateur j.</strong></p>
 
 <p><strong>a. Définir une mesure de similarité. Justifiez.</strong></p>
 
@@ -146,7 +135,7 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 <p>Pour ce qui est de la première (Jaccard similarity), elle est surtout utile quand la matrice consiste de 1 et 0 uniquement (pour "vu"-"non vu", ou "acheté"-"non acheté" ...). Dans notre cas, on utilise l'information du nombre d'écoutes. Cette mesure ne serait donc pas très utile.</p>
 
-<p>Le coefficient de corrélation de Pearson est probablement la mesure de similarité la plus utilisée pour ce type de systèmes. Il estime la corrélation de 2 vecteurs d'utilisateur : </p>
+<p>Le coefficient de corrélation de Pearson est probablement la mesure de similarité la plus utilisée pour ce type de systèmes. Il estime la corrélation de 2 vecteurs d'utilisateur :</p>
 
 <p><img src="./img/formule1.PNG" alt=""></p>
 
@@ -160,11 +149,11 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 <p>où C est un cutoff (en général, C ~ 50 fonctionne bien), et Ri l'ensemble d'items notés par l'utilisateur i (dans notre cas l'ensemble de morceaux écoutés).</p>
 
-<p>La "cosine similarity" est une mesure de la similarité de deux vecteurs par une estimation du cosinus de leur angle. Si l'approche diffère des deux précédentes (statistique vs vectorielle), la formule ressemble beaucoup à celle du coefficient de Pearson : </p>
+<p>La "cosine similarity" est une mesure de la similarité de deux vecteurs par une estimation du cosinus de leur angle. Si l'approche diffère des deux précédentes (statistique vs vectorielle), la formule ressemble beaucoup à celle du coefficient de Pearson :</p>
 
 <p><img src="./img/formule3.PNG" alt=""></p>
 
-<p>Comme je mentionnais plus haut, il est utile, avant de calculer la similarité, de soustraire à chaque vecteur leur moyenne respective. Dans ce cas, la formule précédente devient identique à celle du coefficient de Pearson. </p>
+<p>Comme je mentionnais plus haut, il est utile, avant de calculer la similarité, de soustraire à chaque vecteur leur moyenne respective. Dans ce cas, la formule précédente devient identique à celle du coefficient de Pearson.</p>
 
 <p>La différence vient de la manière dont les items absents sont traités dans chacun des cas. Dans le cas de Pearson, on se restreint aux items en commun. Dans le cas de la similarité cosinus, on considère simplement que l'absence de rating équivaut à 0. Grâce à cette différence, il n'est pas utile d'appliquer de correction à la similarité cosinus, comme c'était le cas pour le coefficient de Pearson.</p>
 
@@ -172,7 +161,7 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 <p>Pour notre cas d'étude, mon choix se porterait plutôt sur la similarité cosinus, bien que le coefficient de Pearson donnerait surement également de bons résultats.</p>
 
-<p> Note : </p>
+<p>Note :</p>
 
 <p>Dans notre cas, où les vecteurs consistent du nombre d'écoutes de chaque track, il pourrait être intéressant d'appliquer d'autres corrections avant le calcul de la similarité. Celles-ci peuvent s'inspirer des TF-IDF weighting utilisé en NLP.</p>
 
@@ -184,7 +173,7 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 <p>Dans la limite où l'on calcule la similarité de chaque paire d'utilisateurs, la matrice contiendrait ~ 2.56e14 éléments, ce qui est énorme.</p>
 
-<p>Cette matrice est symétrique, de telle sorte que l'on ne doit stocker que la moitié des éléments. Cela représente encore malheureusement de l'ordre de 1.3e14 éléments. </p>
+<p>Cette matrice est symétrique, de telle sorte que l'on ne doit stocker que la moitié des éléments. Cela représente encore malheureusement de l'ordre de 1.3e14 éléments.</p>
 
 <p>Il suffit toutefois de réaliser que dans ce genre de problème, il ne sert à rien de connaitre la similarité de toutes les paires d'utilisateurs. Il faut simplement être en mesure de sélectionner les utilisateurs les plus similaires.</p>
 
@@ -192,7 +181,7 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 
 <p>En général, on pourrait stocker une matrice symétrique en ne gardant que les tuples ((i,j), value), tels que i&lt;j (où i et j représentent l'id d'un utilisateur, et value leur similarité). Toutefois, comme j'ai choisi de ne garder que les 100 mesures les plus importantes pour chaque utilisateur, je pense que l'on peut rencontrer des cas pour lesquels, étant donné une paire (user1, user2), user1 fait partie des 100 utilisateurs les plus proches de user2, mais user2 ne fait pas partie des 100 utilisateurs les plus proches de user1.</p>
 
-<p>Pour cela, je pense que la manière la plus simple de la stocker sur disque serait de garder le format utilisé précédemment ("user1 user2 value"), avec une entrée de ce type par ligne, pour user1 = 1:maxUserId. Le fichier correspondant devrait faire dans les 20-30 Go, sans compression, ce qui n'est pas énorme. </p>
+<p>Pour cela, je pense que la manière la plus simple de la stocker sur disque serait de garder le format utilisé précédemment ("user1 user2 value"), avec une entrée de ce type par ligne, pour user1 = 1:maxUserId. Le fichier correspondant devrait faire dans les 20-30 Go, sans compression, ce qui n'est pas énorme.</p>
 
 <p>Ensuite, tout dépend de l'utilisation que l'on souhaite en faire. Je pense qu'un bon choix serait ici de stocker le fichier sur hdfs, puisque cela permet à la fois d'envisager de s'en servir en batch, avec Pig ou Spark, ou bien également d'effectuer des requêtes ponctuelles, au travers par exemple de HBase.</p>
 
@@ -208,12 +197,15 @@ Nous supposons que nous disposons d'une matrice M tel que M(i,j) est une mesure 
 </code></pre>
 
 <p><img src="./img/getSimilarUsers.PNG" alt=""></p>
-      </section>
-      <footer>
-        <p><small></small></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/KPayet/DeezerTestTechnique">Test technique - Data scientist</a> is maintained by <a href="https://github.com/KPayet">KPayet</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+
+    </section>
+
+  
   </body>
 </html>
